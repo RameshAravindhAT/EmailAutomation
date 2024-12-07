@@ -1,21 +1,31 @@
 package utils;
 
 import java.util.Properties;
-import javax.mail.*;
+
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.search.SubjectTerm;
-import io.github.cdimascio.dotenv.Dotenv; // Import Dotenv
+
+import org.testng.annotations.Test;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class EmailTrigger {
 
+    @Test
     public static void startEmailPolling() {
         try {
             while (true) {
-                String senderEmail = checkForEmail();
-                if (senderEmail != null) {
-                    System.out.println("Email received from: " + senderEmail);
-                    // Trigger your GitHub workflow here
-                    GitHubTrigger.triggerWorkflow(senderEmail);
+                String branch = checkForEmail();
+                if (branch != null) {
+                    System.out.println("Connecting Email...");
+                    System.out.println("Email received for branch: " + branch);
+                    // Trigger your GitHub workflow here (You can add your logic to trigger the GitHub workflow)
+                    GitHubTrigger.triggerWorkflow(branch);
                 }
 
                 // Sleep for 1 minute before checking again (more efficient than 1 second)
@@ -44,21 +54,36 @@ public class EmailTrigger {
         // Connect using environment variables for email credentials
         store.connect(dotenv.get("EMAIL_USERNAME"), dotenv.get("EMAIL_PASSWORD"));
 
-        // Access inbox folder and search for specific subject
+        // Access inbox folder and open it in READ_WRITE mode
         Folder inbox = store.getFolder("INBOX");
-        inbox.open(Folder.READ_WRITE);
+        inbox.open(Folder.READ_WRITE); // Ensure folder is opened in read-write mode
 
-        // Search for email with subject "Run Automation test"
-        Message[] messages = inbox.search(new SubjectTerm("Run Automation test"));
+        // Log folder access mode for debugging
+        System.out.println("Folder mode: " + (inbox.getMode() == Folder.READ_WRITE ? "READ_WRITE" : "READ_ONLY"));
+
+        // Search for email with subject "Run Automation test on branch: development"
+        Message[] messages = inbox.search(new SubjectTerm("Run Automation test on branch:"));
         if (messages.length > 0) {
             Message message = messages[0];
             String senderEmail = ((InternetAddress) message.getFrom()[0]).getAddress();
+            String branchName = extractBranchName(message.getSubject());
             message.setFlag(Flags.Flag.SEEN, true); // Mark as read
-            return senderEmail;
+            inbox.close(false); // Close the inbox folder
+            store.close(); // Close the connection to the store
+            return branchName;
         }
 
-        inbox.close(false);
-        store.close();
+        inbox.close(false); // Close the inbox folder
+        store.close(); // Close the connection to the store
+        return null;
+    }
+
+    private static String extractBranchName(String subject) {
+        // Implement logic to extract the branch name from the email subject
+        String[] parts = subject.split(":");
+        if (parts.length >= 2) {
+            return parts[1].trim();
+        }
         return null;
     }
 }
