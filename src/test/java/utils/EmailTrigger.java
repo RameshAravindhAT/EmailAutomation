@@ -8,6 +8,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 import javax.mail.search.SubjectTerm;
+import io.github.cdimascio.dotenv.Dotenv; // Import Dotenv
 
 public class EmailTrigger {
 
@@ -31,6 +32,9 @@ public class EmailTrigger {
     }
 
     public static String checkForEmail() throws Exception {
+        // Load environment variables from the .env file
+        Dotenv dotenv = Dotenv.load();
+
         Properties properties = new Properties();
         properties.put("mail.imap.host", "imap.gmail.com");
         properties.put("mail.imap.port", "993");
@@ -38,7 +42,9 @@ public class EmailTrigger {
 
         Session session = Session.getInstance(properties);
         Store store = session.getStore("imap");
-        store.connect(System.getenv("EMAIL_USERNAME"), System.getenv("EMAIL_PASSWORD"));
+
+        // Use Dotenv to get credentials from the .env file
+        store.connect(dotenv.get("EMAIL_USERNAME"), dotenv.get("EMAIL_PASSWORD"));
 
         Folder inbox = store.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
