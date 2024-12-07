@@ -1,0 +1,1 @@
+{"uuid":"6ab0c1ac-037a-469d-bfd5-c5330d37234c","name":"testPackage.TC_003_Logout","children":["9f54aad0-0d4a-4a68-ad46-9f903dc4f8b4"],"befores":[{"name":"testcasedetails","status":"passed","stage":"finished","description":"","steps":[],"attachments":[],"parameters":[],"start":1733545684978,"stop":1733545684980}],"afters":[],"start":1733545684955,"stop":1733545694922}
