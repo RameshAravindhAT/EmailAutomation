@@ -3,18 +3,8 @@ package utils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
+import javax.mail.*;
+import javax.mail.internet.*;
 import io.github.cdimascio.dotenv.Dotenv; // Import Dotenv
 
 public class EmailReply {
@@ -61,16 +51,20 @@ public class EmailReply {
         System.out.println("Report sent to: " + recipient);
     }
 
-    public static void main(String[] args) throws Exception {
-        // Load recipients from a file or list (hardcoded for now)
-        List<String> recipients = Arrays.asList("ramesharavindhkarthikeyan.qa@gmail.com","reslirocker@gmail.com");
+    public static void main(String[] args) {
+        try {
+            // Load recipients from a file or list (hardcoded for now)
+            List<String> recipients = Arrays.asList("ramesharavindhkarthikeyan.qa@gmail.com", "reslirocker@gmail.com");
 
-        // Specify the path to the report file
-        String reportPath = "path/to/report.pdf"; // Replace with the actual file path
+            // Specify the path to the report file
+            String reportPath = "path/to/report.pdf"; // Replace with the actual file path
 
-        // Send the report to each recipient
-        for (String recipient : recipients) {
-            sendReport(recipient, reportPath);
+            // Send the report to each recipient
+            for (String recipient : recipients) {
+                sendReport(recipient, reportPath);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
